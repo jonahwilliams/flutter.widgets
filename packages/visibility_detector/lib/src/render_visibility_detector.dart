@@ -35,32 +35,12 @@ class RenderVisibilityDetector extends RenderProxyBox {
   /// Used by [VisibilityDetector.updateRenderObject].
   set onVisibilityChanged(VisibilityChangedCallback? value) {
     _onVisibilityChanged = value;
-    markNeedsCompositingBitsUpdate();
     markNeedsPaint();
   }
-
-  // See [RenderObject.alwaysNeedsCompositing].
-  @override
-  bool get alwaysNeedsCompositing => onVisibilityChanged != null;
 
   /// See [RenderObject.paint].
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (onVisibilityChanged == null) {
-      // No need to create a [VisibilityDetectorLayer].  However, in case one
-      // already exists, remove all cached data for it so that we won't fire
-      // visibility callbacks when the layer is removed.
-      VisibilityDetectorLayer.forget(key);
-      super.paint(context, offset);
-      return;
-    }
-
-    final layer = VisibilityDetectorLayer(
-        key: key,
-        widgetOffset: Offset.zero,
-        widgetSize: semanticBounds.size,
-        paintOffset: offset,
-        onVisibilityChanged: onVisibilityChanged!);
-    context.pushLayer(layer, super.paint, offset);
+    super.paint(context, offset);
   }
 }
